@@ -1,0 +1,14 @@
+- hosts: raspberrypi
+  become: yes
+
+  tasks:
+  - name: Install piVPN
+    apt:
+      name: wireguard-dkms wireguard-tools raspberrypi-kernel-headers
+      state: latest
+  - name: Install Openmediavault
+    apt:
+      name: openmediavault
+      state: latest
+
+      

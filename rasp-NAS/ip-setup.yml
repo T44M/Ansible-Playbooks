@@ -1,0 +1,46 @@
+- name: Update Raspberry Pi configuration and install OpenMediaVault
+  hosts: raspberrypi
+  become: yes
+
+  tasks:
+    - name: Update package list
+      apt:
+        update_cache: yes
+
+    - name: Upgrade packages
+      apt:
+        upgrade: yes
+
+    - name: Expand Filesystem
+      command: sudo raspi-config nonint do_expand_rootfs
+
+    - name: Set Locale
+      command: sudo raspi-config nonint do_change_locale ja_JP.UTF-8
+
+    - name: Set Timezone
+      command: sudo raspi-config nonint do_change_timezone Asia/Tokyo
+
+    - name: Set WiFi Country
+      command: sudo raspi-config nonint do_wifi_country JP
+
+    - name: Set Static IP Address
+      blockinfile:
+        path: /etc/dhcpcd.conf
+        block: |
+          interface eth0
+          static ip_address=##IPADDR##
+          static routers=##IPADDR##
+          static domain_name_servers=##IPADDR##
+
+    - name: Reload dhcpcd service
+      systemd:
+        name: dhcpcd
+        state: restarted
+
+    - name: Download and run OpenMediaVault installation script
+      shell: |
+        wget -O - https://github.com/OpenMediaVault-Plugin-Developers/installScript/raw/master/install | sudo bash
+      args:
+        warn: false
+
+        
